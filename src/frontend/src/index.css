@@ -1,0 +1,51 @@
+/* ============================================================
+   WaferSight — IBM Carbon-inspired global styles
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue-60:    #0f62fe;
+  --blue-70:    #0043ce;
+  --blue-10:    #edf5ff;
+  --red-60:     #da1e28;
+  --red-10:     #fff1f1;
+  --green-50:   #198038;
+  --green-10:   #defbe6;
+  --orange-40:  #ff832b;
+  --orange-10:  #fff2e8;
+  --gray-100:   #161616;
+  --gray-80:    #393939;
+  --gray-60:    #6f6f6f;
+  --gray-20:    #e0e0e0;
+  --gray-10:    #f4f4f4;
+  --white:      #ffffff;
+  --text-01:    #161616;
+  --text-02:    #525252;
+  --border:     #e0e0e0;
+  --shadow:     0 2px 6px rgba(0,0,0,.12);
+  --radius:     4px;
+  --font:       'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-01);
+  background: var(--gray-10);
+  min-height: 100vh;
+}
+
+code { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+/* Spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2px solid var(--gray-20);
+  border-top-color: var(--blue-60);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
