@@ -1,4 +1,4 @@
-# 🚀 [Your Project Title Here]
+# 🚀 Wafer Yield Analyser
 
 > ⚠️ **Replace everything in `[ ]` brackets with your actual content before submission.**
 
@@ -8,7 +8,7 @@
 
 | Field | Value |
 |---|---|
-| **Team Name** | [Your Team Name] |
+| **Team Name** | CodeCraft |
 | **Track** | [AI / DevOps / Sustainability / Open] |
 | **Team Lead** | [Name] — [email@ibm.com] |
 | **Members** | [Name 1], [Name 2], [Name 3] |
