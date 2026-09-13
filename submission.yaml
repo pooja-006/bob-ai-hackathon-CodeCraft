@@ -9,11 +9,11 @@
 # =============================================================================
 
 team:
-  name: ""                             # REQUIRED — e.g., "Orion Squad"
-  track: ""                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
+  name: "CodeCraft"                    # REQUIRED — e.g., "Orion Squad"
+  track: "AI"                          # REQUIRED — one of: AI | DevOps | Sustainability | Open
   lead:
-    name: ""                           # REQUIRED — e.g., "Alice Chen"
-    email: ""                          # REQUIRED — e.g., "alice.chen@ibm.com"
+    name: "Pooja"                      # REQUIRED — e.g., "Alice Chen"
+    email: "pooja@example.com"         # REQUIRED — e.g., "alice.chen@ibm.com"
   members:
     - name: ""                         # REQUIRED — Team member 1
       email: ""
@@ -23,15 +23,15 @@ team:
       email: ""
 
 submission:
-  title: ""                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
+  title: "Wafer Yield Analyser"        # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
 
   problem_statement: >                 # REQUIRED — 1-3 sentences. What problem? Who has it?
-    Replace this text with a concise description of the real-world problem
-    your project addresses and who experiences it.
+    Semiconductor operations teams struggle to quickly identify why wafer yield drops
+    because defect and process signals are spread across disconnected systems.
 
   solution_summary: >                  # REQUIRED — 1-3 sentences. What did you build?
-    Replace this text with a clear description of your solution
-    and how it addresses the problem above.
+    We built an AI-assisted wafer yield analyser that combines statistical defect
+    analysis with watsonx-powered root-cause explanations and risk prediction.
 
   key_features:                        # REQUIRED — List 3 to 5 specific features you implemented
     - ""                               # e.g., "Real-time pipeline anomaly detection using watsonx.ai"
