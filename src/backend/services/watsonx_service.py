@@ -409,22 +409,128 @@ def _fallback_corrective_actions(root_cause: Dict[str, Any]) -> List[Dict[str, s
 
 def _fallback_answer(query: str, context: str) -> Dict[str, Any]:
     """
-    Build a deterministic fallback answer by extracting key numbers from context.
-    Used when watsonx credentials are absent.
-    """
-    # Pull key metrics from context string for a grounded answer
-    yield_match = re.search(r"yield[:\s]+([0-9.]+)%", context, re.IGNORECASE)
-    tool_match  = re.search(r"tool[_\s]*id[:\s]+([A-Z]+-[0-9]+)", context, re.IGNORECASE)
-    yield_str   = f"{yield_match.group(1)}%" if yield_match else "not specified in the context"
-    tool_str    = tool_match.group(1) if tool_match else "the implicated tool"
+    Build a grounded fallback answer from the structured context string
+    produced by the /api/analysis/chat router.
 
-    answer = (
-        f"Based on the provided process data: lot yield is {yield_str} and the primary implicated tool is {tool_str}. "
-        f"The pattern detection engine has identified statistical anomalies in sensor readings and defect densities. "
-        f"For a detailed analysis, review the ranked root-cause candidates returned by the /api/analysis/root-cause endpoint."
-    )
+    The context lines use key=value format, e.g.:
+        Lot: W2401-0083  node=3nm  step=etch  tool=ETCH-03  recipe=R-ETH-04
+             yield=71.99%  low_yield=True
+        Sensor readings (mean): etch_temp_c=188.42, rf_power_w=379.1
+        Defects: {'particle': 8, 'void': 3}  mean_density=0.2810/cm2
+        Top root-cause candidates: Abnormal etch_temp_c on ETCH-03 (38.0% confidence); ...
+
+    For the fleet-level (no lot) case, context is "No specific lot context provided."
+    """
+    query_lower = query.lower()
+
+    # ── Extract structured fields from the context string ──────────────────
+    # Lot line: "Lot: W2401-0083  node=3nm  step=etch  tool=ETCH-03 ..."
+    lot_match    = re.search(r"Lot:\s*(\S+)", context)
+    yield_match  = re.search(r"yield=([0-9.]+)%", context)
+    low_match    = re.search(r"low_yield=(True|False)", context)
+    tool_match   = re.search(r"tool=([A-Z]+-\d+)", context)
+    step_match   = re.search(r"step=(\w+)", context)
+    recipe_match = re.search(r"recipe=(\S+)", context)
+    node_match   = re.search(r"node=(\w+)", context)
+
+    lot_id    = lot_match.group(1)   if lot_match    else None
+    yield_pct = yield_match.group(1) if yield_match  else None
+    low_yield = low_match.group(1)   if low_match    else None
+    tool_id   = tool_match.group(1)  if tool_match   else None
+    step      = step_match.group(1)  if step_match   else None
+    recipe    = recipe_match.group(1) if recipe_match else None
+    node      = node_match.group(1)  if node_match   else None
+
+    # Sensor readings: "Sensor readings (mean): param=val, param=val"
+    sensor_match = re.search(r"Sensor readings \(mean\):\s*(.+)", context)
+    sensors_str  = sensor_match.group(1).strip() if sensor_match else None
+
+    # Defect info: "Defects: {'particle': 8, 'void': 3}  mean_density=0.2810/cm2"
+    defect_line  = re.search(r"Defects:\s*(\{[^}]+\})\s*mean_density=([0-9.]+)", context)
+    defect_types = defect_line.group(1) if defect_line else None
+    mean_density = defect_line.group(2) if defect_line else None
+
+    # Top candidates: "Top root-cause candidates: X (N% confidence); Y (M% confidence)"
+    cand_match = re.search(r"Top root-cause candidates:\s*(.+)", context)
+    candidates_str = cand_match.group(1).strip() if cand_match else None
+
+    # ── No-context path (fleet-level query) ────────────────────────────────
+    if not lot_id:
+        answer = (
+            "No specific lot was selected. "
+            "To get a detailed yield analysis, select a lot in the context dropdown. "
+            "Fleet-level statistics show the pattern detector has identified "
+            "etch temperature on ETCH-03 and RF power on DEP-02 as the top "
+            "parameters correlated with yield loss in the current dataset. "
+            "Use the Root Cause Analysis tab to investigate a specific lot."
+        )
+        return {"answer": answer, "source_mode": "fallback", "query": query}
+
+    # ── Build a grounded, query-aware answer ───────────────────────────────
+    parts = []
+
+    # Opening: lot ID + yield
+    yield_flag_str = ""
+    if yield_pct:
+        is_low = low_yield == "True" or (yield_pct and float(yield_pct) < 82)
+        yield_flag_str = " (below the 82% low-yield threshold)" if is_low else " (within acceptable range)"
+    lot_line = f"Lot {lot_id}"
+    if node:       lot_line += f" is a {node} lot"
+    if step:       lot_line += f" processed on the {step} step"
+    if tool_id:    lot_line += f" using tool {tool_id}"
+    if recipe:     lot_line += f" with recipe {recipe}"
+    if yield_pct:  lot_line += f", achieving {yield_pct}% yield{yield_flag_str}."
+    else:          lot_line += "."
+    parts.append(lot_line)
+
+    # Root cause candidates — most relevant to query intent
+    if candidates_str:
+        if any(kw in query_lower for kw in ("cause", "root", "why", "reason", "issue", "problem")):
+            parts.append(
+                f"The top root-cause candidates are: {candidates_str}. "
+                "Expand each candidate in the Root Cause Analysis tab to see the supporting sensor evidence."
+            )
+        elif any(kw in query_lower for kw in ("tool", "inspect", "check", "equipment")):
+            parts.append(
+                f"Based on the pattern detection results, prioritise inspection of tool {tool_id or 'the process tool'}. "
+                f"The top signal is: {candidates_str.split(';')[0].strip()}."
+            )
+        elif any(kw in query_lower for kw in ("corrective", "action", "fix", "recommend", "step")):
+            parts.append(
+                f"The most relevant root-cause finding is: {candidates_str.split(';')[0].strip()}. "
+                "Use the Corrective Actions section in the Root Cause Analysis tab for "
+                f"specific actions targeting {tool_id or 'the implicated tool'}."
+            )
+        else:
+            parts.append(f"Root-cause signals: {candidates_str}.")
+
+    # Sensor data — include if relevant or no candidates
+    if sensors_str and any(kw in query_lower for kw in ("sensor", "temp", "pressure", "power", "rf", "parameter", "drift")):
+        parts.append(f"Sensor readings for this lot: {sensors_str}.")
+    elif sensors_str and not candidates_str:
+        parts.append(f"Sensor readings: {sensors_str}.")
+
+    # Defect data — include if defect-related query or high density
+    if defect_types and mean_density:
+        if any(kw in query_lower for kw in ("defect", "particle", "contamination", "density", "scratch", "void")):
+            parts.append(
+                f"Defect profile: {defect_types}, mean density {mean_density}/cm\u00b2. "
+                "Elevated particle density is a strong indicator of chamber contamination."
+            )
+        elif float(mean_density) > 0.15:
+            parts.append(
+                f"Note: elevated defect density detected ({mean_density}/cm\u00b2) — "
+                "this level typically correlates with yield loss at advanced nodes."
+            )
+
+    # Closing guidance if answer is short
+    if len(parts) < 2:
+        parts.append(
+            f"Use the Root Cause Analysis tab to view the full ranked evidence for lot {lot_id}."
+        )
+
     return {
-        "answer":      answer,
+        "answer":      " ".join(parts),
         "source_mode": "fallback",
         "query":       query,
     }
