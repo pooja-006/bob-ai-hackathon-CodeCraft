@@ -1,121 +1,287 @@
-# 🚀 [Your Project Title Here]
+# Wafer Yield Root Cause & Defect Pattern Analyser
 
-> ⚠️ **Replace everything in `[ ]` brackets with your actual content before submission.**
+> An AI-assisted semiconductor manufacturing analytics platform for detecting yield-loss patterns, identifying likely root causes, predicting lot risk, and recommending corrective actions.
 
 ---
 
 ## 👥 Team
 
-| Field | Value |
-|---|---|
-| **Team Name** | [Your Team Name] |
-| **Track** | [AI / DevOps / Sustainability / Open] |
-| **Team Lead** | [Name] — [email@ibm.com] |
-| **Members** | [Name 1], [Name 2], [Name 3] |
+| **Field**     | **Value**                 |
+| ------------- | ------------------------- |
+| **Team Name** | CodeCraft                 |
+| **Track**     | AI                        |
+| **Team Lead** | Twisha Patel             |
+| **Members**   | Pooja Patel, Pranjal Patel, Datri Vasani |
 
 ---
 
 ## 🎯 Problem Statement
 
-> In 2–3 sentences: What problem does your project solve? Who experiences this problem?
+Semiconductor manufacturing generates large volumes of process, equipment, sensor, and defect data, making it difficult for engineers to quickly identify the causes of wafer-yield degradation. Process engineers need a faster way to connect abnormal sensor conditions and defect patterns with affected lots, equipment, and potential corrective actions.
 
-[Describe the real-world problem your project addresses. Be specific about who the user is and what pain point they face.]
+This project addresses that challenge by providing an integrated analytics dashboard that detects process anomalies, identifies likely root causes, predicts yield risk, and presents evidence-backed engineering insights.
 
 ---
 
 ## 💡 Solution
 
-> In 2–3 sentences: What did you build? How does it solve the problem above?
+**Wafer Yield Root Cause & Defect Pattern Analyser** is an AI-assisted analytics application that combines semiconductor lot, equipment-sensor, and defect data to identify patterns associated with yield loss.
 
-[Describe your solution clearly. Explain the core mechanism — what makes it work.]
+The system uses statistical pattern detection and a Random Forest risk model to analyse manufacturing conditions. An engineer-facing interface provides fleet-level insights, lot-specific root-cause analysis, risk predictions, corrective actions, and a conversational **Ask Bob** interface that can use IBM watsonx.ai Granite when configured, with a deterministic local fallback when the external AI service is unavailable.
 
 ---
 
 ## ✨ Key Features
 
-- **Feature 1:** [Brief description — e.g., "Real-time anomaly detection using watsonx.ai"]
-- **Feature 2:** [Brief description]
-- **Feature 3:** [Brief description]
-- **Feature 4:** [Optional]
-- **Feature 5:** [Optional]
+* **Root-Cause Analysis:** Detects important process and defect patterns associated with low-yield lots, including thermal drift, RF spikes, particle contamination, and pressure drift.
+
+* **Yield Risk Prediction:** Uses a Random Forest model to estimate the risk of yield degradation for manufacturing conditions.
+
+* **Defect Pattern Detection:** Analyses defect density and process measurements to identify statistically significant relationships with yield loss.
+
+* **Lot-Level Investigation:** Engineers can select individual wafer lots and inspect their yield, process conditions, defects, and detected anomalies.
+
+* **Fleet-Level Analysis:** Provides an overview of manufacturing performance and identifies broader process trends across the available lot population.
+
+* **Corrective-Action Recommendations:** Converts detected process patterns into practical engineering actions such as inspecting affected equipment or investigating abnormal process parameters.
+
+* **Ask Bob:** Provides a conversational interface for yield-engineering questions using available lot and process context.
+
+* **IBM watsonx.ai Integration:** When valid watsonx.ai credentials and the supported SDK are available, the system can use IBM Granite for AI-generated engineering responses.
+
+* **Grounded Fallback Mode:** If watsonx.ai is unavailable, the application falls back to locally computed, data-grounded analysis rather than failing completely.
+
+* **Evidence-Based Insights:** Analysis responses are grounded in the project's lot, sensor, defect, and detected-pattern data to reduce unsupported conclusions.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Category | Technologies |
-|---|---|
-| **Languages** | [e.g., Python, TypeScript] |
-| **Frameworks** | [e.g., FastAPI, React] |
-| **IBM Technologies** | [e.g., watsonx.ai, IBM Bob, IBM Cloud] |
-| **Databases** | [e.g., PostgreSQL, Redis] |
-| **Other** | [e.g., Docker, GitHub Actions] |
+| **Category**           | **Technologies**                                                     |
+| ---------------------- | -------------------------------------------------------------------- |
+| **Languages**          | Python, JavaScript, React js|
+| **Frameworks**         | FastAPI, pandas, NumPy, scikit-learn |
+| **AI / ML**            | Random Forest, statistical pattern detection, IBM watsonx.ai Granite |
+| **IBM Technologies**   | IBM watsonx.ai, IBM Granite |
+| **Database / Storage** | CSV-based analytical datasets, Joblib model cache                    |
+| **Frontend**           | Vanilla HTML, CSS, JavaScript                                        |
+| **Backend**            | FastAPI REST API    |
+| **Other**              | Git, dotenv, Joblib  |
 
 ---
 
 ## 📁 Repository Structure
 
-```
-├── src/                  # All source code
-├── docs/                 # Written documentation
-│   ├── problem-statement.md
-│   ├── solution-overview.md
-│   ├── architecture.md
-│   └── setup-guide.md
-├── demo/                 # Demo artifacts
-│   ├── screenshots/      # App screenshots
-│   └── demo-video-link.txt  # Link to demo video
-├── presentation/         # Slide deck
-└── submission.yaml       # Structured submission metadata
+```text
+├── src/
+│   ├── backend/
+│   │   ├── main.py
+│   │   ├── routers/
+│   │   │   ├── lots.py
+│   │   │   └── analysis.py
+│   │   ├── services/
+│   │   │   ├── data_loader.py
+│   │   │   ├── pattern_detector.py
+│   │   │   ├── risk_predictor.py
+│   │   │   └── watsonx_service.py
+│   │   └── tests/
+│   │       └── test_watsonx_service.py
+│   │
+│   ├── data/
+│   │   ├── generate_data.py
+│   │   ├── schema.md
+│   │   └── fixtures/
+│   │       ├── wafer_lots.csv
+│   │       ├── equipment_sensor_readings.csv
+│   │       └── defect_reports.csv
+│   │
+│   └── frontend/
+│       ├── index.html
+│       ├── app.js
+│       └── style.css
+│
+├── docs/
+├── demo/
+│   ├── screenshots/
+│   └── demo-video-link.txt
+│
+├── presentation/
+├── .env.example
+├── .gitignore
+└── README.md
 ```
 
 ---
 
 ## ⚡ How to Run
 
-> **Copy these exact steps from your [`docs/setup-guide.md`](docs/setup-guide.md)**
+### 1. Clone the repository
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/[your-repo].git
-cd [your-repo]
-
-# 2. Install dependencies
-[your install command here]
-
-# 3. Configure environment
-cp .env.example .env
-# Edit .env with your values
-
-# 4. Run the project
-[your run command here]
+git clone https://github.com/[your-repository].git
+cd [your-repository]
 ```
+
+### 2. Create a Python environment
+
+Python 3.11+ is recommended when using the current IBM watsonx.ai SDK.
+
+```bash
+py -3.11 -m venv .venv
+```
+
+Activate it on Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r src/backend/requirements.txt
+```
+
+If you want to enable the live IBM watsonx.ai path and the SDK is compatible with your Python environment:
+
+```bash
+pip install ibm-watsonx-ai
+```
+
+### 4. Configure environment variables
+
+Copy the example environment file:
+
+```bash
+copy .env.example .env
+```
+
+Configure the watsonx.ai variables if live Granite responses are available:
+
+```env
+WATSONX_API_KEY=your_api_key
+WATSONX_PROJECT_ID=your_project_id
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+WATSONX_MODEL_ID=ibm/granite-3-3-8b-instruct
+```
+
+> watsonx.ai credentials are optional. Without valid credentials, the application uses its local grounded fallback mode.
+
+### 5. Start the backend
+
+From the project root:
+
+```bash
+uvicorn src.backend.main:app --reload
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+### 6. Open the frontend
+
+Open:
+
+```text
+src/frontend/index.html
+```
+
+or serve the frontend using a local development server.
+
+> The backend must be running before using API-dependent dashboard features such as lot analysis, risk prediction, and Ask Bob.
 
 ---
 
 ## 🖥️ Demo
 
-| Artifact | Link |
-|---|---|
-| 📹 Demo Video | [See demo/demo-video-link.txt](demo/demo-video-link.txt) |
-| 🌐 Live Demo | [See demo/live-demo-url.txt](demo/live-demo-url.txt) |
-| 🖼️ Screenshots | [See demo/screenshots/](demo/screenshots/) |
-| 📊 Presentation | [See presentation/slides.pdf](presentation/) |
+| **Artifact**    | **Link**                   |
+| --------------- | -------------------------- |
+| 📹 Demo Video   | `demo/demo-video-link.txt` |
+| 🌐 Live Demo    | `demo/live-demo-url.txt`   |
+| 🖼️ Screenshots | `demo/screenshots/`        |
+| 📊 Presentation | `presentation/`            |
+
+---
+
+## 📊 Example Detected Patterns
+
+The project dataset contains controlled manufacturing patterns designed to demonstrate how the analysis pipeline identifies potential yield-loss causes.
+
+### ETCH-03 Thermal Degradation
+
+The system detects elevated etch temperature associated with reduced yield and flags ETCH-03 as a significant process contributor.
+
+### DEP-02 RF Spike
+
+An abnormal RF-power condition on DEP-02 is detected as another potential contributor to yield degradation.
+
+### Particle Contamination
+
+The analysis identifies substantially higher particle density in low-yield lots, providing evidence for contamination-related yield loss.
+
+### ETCH-01 Pressure Drift
+
+The system detects a pressure-drift pattern associated with declining yield over the relevant lots.
+
+---
+
+## 🤖 AI & Analytics Pipeline
+
+```text
+                 Manufacturing Data
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+      Lot Data       Sensor Data     Defect Data
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                Data Loading & Analysis
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+     Pattern          Risk Model      Defect
+     Detection        Prediction      Analysis
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                 Root-Cause Evidence
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+       Corrective Actions       Ask Bob
+                                    │
+                         ┌──────────┴──────────┐
+                         ▼                     ▼
+                    watsonx.ai             Local
+                     Granite             Fallback
+```
 
 ---
 
 ## ⚠️ Known Limitations
 
-> Be honest — judges appreciate transparency over overclaiming.
+* **Synthetic Dataset:** The current demonstration uses a controlled synthetic semiconductor manufacturing dataset rather than production fab data.
 
-- [Limitation 1: e.g., "Authentication is mocked — not production-ready"]
-- [Limitation 2: e.g., "Only tested on Chrome"]
-- [Limitation 3: e.g., "Feature X is scaffolded but not fully implemented"]
+* **Model Generalization:** Reported ML metrics are based on the project's current dataset and should not be interpreted as evidence of real-world production generalization.
+
+* **watsonx.ai Availability:** Live Granite responses require compatible IBM watsonx.ai credentials and SDK configuration. When unavailable, the application uses its local deterministic fallback.
+
+* **Production Integration:** The current implementation does not directly connect to live semiconductor manufacturing equipment, MES, SCADA, or fab data systems.
+
+* **Authentication:** The demonstration application does not implement production-grade user authentication and authorization.
+
+* **IBM Bob Integration:** The current conversational interface should not be interpreted as proof of a native IBM Bob runtime integration unless the corresponding Bob integration mechanism is explicitly configured and demonstrated.
 
 ---
 
 ## 🏅 What We're Most Proud Of
 
-[Tell the judges what part of your submission is strongest and worth paying close attention to.]
+We are most proud of turning a complex semiconductor yield-analysis problem into a single engineer-focused workflow.
 
----
+Instead of presenting isolated charts or ML predictions, the system connects **yield → sensor conditions → defect patterns → root-cause evidence → risk → corrective actions** in one interface.
+
+The strongest part of the project is its combination of **data-grounded analytics and AI-assisted engineering interaction**. The application can continue providing useful analysis even when the external watsonx.ai service is unavailable, while keeping the fallback grounded in the project's actual manufacturing data rather than fabricating evidence.

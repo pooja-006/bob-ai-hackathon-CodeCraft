@@ -9,51 +9,67 @@
 # =============================================================================
 
 team:
-  name: ""                             # REQUIRED — e.g., "Orion Squad"
-  track: ""                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
+  name: "CodeCraft"                             # REQUIRED — e.g., "Orion Squad"
+  track: "AI"                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
   lead:
-    name: ""                           # REQUIRED — e.g., "Alice Chen"
-    email: ""                          # REQUIRED — e.g., "alice.chen@ibm.com"
+    name: "Twisha Patel"                           # REQUIRED — e.g., "Alice Chen"
+    email: "24dce102@charusat.edu.in"                          # REQUIRED — e.g., "alice.chen@ibm.com"
   members:
-    - name: ""                         # REQUIRED — Team member 1
-      email: ""
-    - name: ""                         # Add more members by copying the two lines above
-      email: ""
-    - name: ""
-      email: ""
+    - name: "Pooja Patel"                         # REQUIRED — Team member 1
+      email: "24dce096@charusat.edu.in"
+    - name: "Pranjal Patel"                         # Add more members by copying the two lines above
+      email: "24dce097@charusat.edu.in"
+    - name: "Datri Vasani"
+      email: "24dce148@charusat.edu.in"
 
 submission:
-  title: ""                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
+  title: "Wafer Yield Root Cause & Defect Pattern Analyser"                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
 
   problem_statement: >                 # REQUIRED — 1-3 sentences. What problem? Who has it?
-    Replace this text with a concise description of the real-world problem
-    your project addresses and who experiences it.
+    Semiconductor manufacturing generates large volumes of process, equipment, sensor, and defect data, making it difficult for engineers to quickly identify the causes of wafer-yield degradation. Process engineers need a faster way to connect abnormal sensor conditions and defect patterns with affected lots, equipment, and potential corrective actions.
+
+    This project addresses that challenge by providing an integrated analytics dashboard that detects process anomalies, identifies likely root causes, predicts yield risk, and presents evidence-backed engineering insights.
+
 
   solution_summary: >                  # REQUIRED — 1-3 sentences. What did you build?
-    Replace this text with a clear description of your solution
-    and how it addresses the problem above.
+    **Wafer Yield Root Cause & Defect Pattern Analyser** is an AI-assisted analytics application that combines semiconductor lot, equipment-sensor, and defect data to identify patterns associated with yield loss.
+
+    The system uses statistical pattern detection and a Random Forest risk model to analyse manufacturing conditions. An engineer-facing interface provides fleet-level insights, lot-specific root-cause analysis, risk predictions, corrective actions, and a conversational **Ask Bob** interface that can use IBM watsonx.ai Granite when configured, with a deterministic local fallback when the external AI service is unavailable.
+
 
   key_features:                        # REQUIRED — List 3 to 5 specific features you implemented
-    - ""                               # e.g., "Real-time pipeline anomaly detection using watsonx.ai"
-    - ""
-    - ""
-    - ""                               # optional 4th
-    - ""                               # optional 5th
+    - "Root-Cause Analysis"                               # e.g., "Real-time pipeline anomaly detection using watsonx.ai"
+    - "Yield Risk Prediction"
+    - "Defect Pattern Detection"
+    - "Lot-Level Investigation"                               # optional 4th
+    - "Ask Bob"                               # optional 5th
 
   tech_stack:
-    languages: []                      # REQUIRED — e.g., ["Python", "TypeScript"]
-    frameworks: []                     # e.g., ["FastAPI", "React"]
-    ibm_technologies: []               # e.g., ["watsonx.ai", "IBM Bob", "IBM Cloud Functions"]
-    databases: []                      # e.g., ["PostgreSQL", "Redis"]
-    other: []                          # e.g., ["Docker", "GitHub Actions", "Slack API"]
+    languages: [Python, JavaScript, React js]                      # REQUIRED — e.g., ["Python", "TypeScript"]
+    frameworks: [FastAPI, pandas, NumPy, scikit-learn ]                     # e.g., ["FastAPI", "React"]
+    ibm_technologies: [IBM watsonx.ai, IBM Granite ]               # e.g., ["watsonx.ai", "IBM Bob", "IBM Cloud Functions"]
+    databases: [FastAPI REST API]                      # e.g., ["PostgreSQL", "Redis"]
+    other: [Git, dotenv, Joblib]                          # e.g., ["Docker", "GitHub Actions", "Slack API"]
 
   what_we_are_most_proud_of: >         # Optional but recommended — guides judges to your best work
-    Replace with what aspect of the submission you consider strongest
-    and want judges to pay special attention to.
+    We are most proud of turning a complex semiconductor yield-analysis problem into a single engineer-focused workflow.
+
+    Instead of presenting isolated charts or ML predictions, the system connects **yield → sensor conditions → defect patterns → root-cause evidence → risk → corrective actions** in one interface.
+
+    The strongest part of the project is its combination of **data-grounded analytics and AI-assisted engineering interaction**. The application can continue providing useful analysis even when the external watsonx.ai service is unavailable, while keeping the fallback grounded in the project's actual manufacturing data rather than fabricating evidence.
 
   known_limitations: >                 # Optional but recommended — be honest about gaps
-    Replace with any known limitations, incomplete features,
-    or shortcuts taken due to time constraints.
+    * Synthetic Dataset: The current demonstration uses a controlled synthetic semiconductor manufacturing dataset rather than production fab data.
+
+    * Model Generalization: Reported ML metrics are based on the project's current dataset and should not be interpreted as evidence of real-world production generalization.
+
+    * watsonx.ai Availability: Live Granite responses require compatible IBM watsonx.ai credentials and SDK configuration. When unavailable, the application uses its local deterministic fallback.
+
+    * Production Integration: The current implementation does not directly connect to live semiconductor manufacturing equipment, MES, SCADA, or fab data systems.
+
+    * Authentication: The demonstration application does not implement production-grade user authentication and authorization.
+
+    * IBM Bob Integration: The current conversational interface should not be interpreted as proof of a native IBM Bob runtime integration unless the corresponding Bob integration mechanism is explicitly configured and demonstrated.
 
 # =============================================================================
 # ARTIFACT LOCATIONS
