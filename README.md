@@ -73,42 +73,81 @@ The system uses statistical pattern detection and a Random Forest risk model to 
 ## 📁 Repository Structure
 
 ```text
-├── src/
-│   ├── backend/
-│   │   ├── main.py
-│   │   ├── routers/
-│   │   │   ├── lots.py
-│   │   │   └── analysis.py
-│   │   ├── services/
-│   │   │   ├── data_loader.py
-│   │   │   ├── pattern_detector.py
-│   │   │   ├── risk_predictor.py
-│   │   │   └── watsonx_service.py
-│   │   └── tests/
-│   │       └── test_watsonx_service.py
-│   │
-│   ├── data/
-│   │   ├── generate_data.py
-│   │   ├── schema.md
-│   │   └── fixtures/
-│   │       ├── wafer_lots.csv
-│   │       ├── equipment_sensor_readings.csv
-│   │       └── defect_reports.csv
-│   │
-│   └── frontend/
-│       ├── index.html
-│       ├── app.js
-│       └── style.css
+BOB-AI-HACKATHON-CODECRAFT/
 │
-├── docs/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   └── workflows/
+│
 ├── demo/
 │   ├── screenshots/
-│   └── demo-video-link.txt
+│   │   └── README.md
+│   ├── demo-video-link.txt
+│   └── live-demo-url.txt
+│
+├── docs/
+│   ├── architecture.md
+│   ├── problem-statement.md
+│   ├── setup-guide.md
+│   ├── solution-overview.md
+│   └── template-guide.md
 │
 ├── presentation/
+│   └── README.md
+│
+├── src/
+│   │
+│   ├── backend/
+│   │   ├── __pycache__/
+│   │   ├── model_cache/
+│   │   ├── routers/
+│   │   ├── services/
+│   │   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   └── requirements.txt
+│   │
+│   ├── data/
+│   │   ├── fixtures/
+│   │   ├── generate_data.py
+│   │   └── schema.md
+│   │
+│   └── frontend/
+│       ├── node_modules/
+│       ├── public/
+│       │   ├── favicon.svg
+│       │   └── icons.svg
+│       │
+│       ├── src/
+│       │   ├── assets/
+│       │   │   ├── hero.png
+│       │   │   ├── react.svg
+│       │   │   └── vite.svg
+│       │   ├── tabs/
+│       │   │   ├── AskBob.jsx
+│       │   │   ├── LotOverview.jsx
+│       │   │   ├── RiskPredict.jsx
+│       │   │   └── RootCause.jsx
+│       │   ├── api.js
+│       │   ├── App.css
+│       │   ├── App.jsx
+│       │   ├── index.css
+│       │   └── main.jsx
+│       │
+│       ├── .gitignore
+│       ├── .oxlintrc.json
+│       ├── index.html
+│       ├── package-lock.json
+│       ├── package.json
+│       ├── README.md
+│       └── vite.config.js
+│
 ├── .env.example
 ├── .gitignore
-└── README.md
+├── CONTRIBUTING.md
+├── README.md
+├── submission.yaml
+└── wafer-yield-analyser-plan.md  
 ```
 
 ---
