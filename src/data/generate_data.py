@@ -11,14 +11,16 @@ Defect Pattern Analyser:
 All randomness is seeded at 42 so outputs are fully deterministic.
 
 Injected low-yield patterns (detectable by the ML / LLM stage):
-  P1 - TOOL DEGRADATION  : tool_id "ETCH-03" after lot 200 runs ~12 C hotter
-       (etch_temp > 185 C) -> yield drops 15-25 pp below baseline.
+  P1 - TOOL DEGRADATION  : tool_id "ETCH-03" after lot 200 runs ~18 C hotter
+       (etch_temp > 185 C) -> yield drops 22-30 pp below baseline (HIGH risk).
   P2 - RECIPE INTERACTION: recipe "R-NIT-07" on "DEP-02" causes RF power spikes
-       (rf_power > 420 W) -> yield drops 10-20 pp.
-  P3 - PARTICLE CONTAMINATION: lots with defect_density > 0.18 /cm2 of type
-       "particle" -> yield drops proportionally (-40 pp at density 0.40).
+       (rf_power > 430 W) -> yield drops 18-26 pp (HIGH risk).
+  P3 - PARTICLE CONTAMINATION: ~12% of lots get a particle burst event
+       (defect_density > 0.22 /cm2) -> yield drops 18-30 pp (HIGH/MEDIUM risk).
   P4 - PROCESS DRIFT    : etch_pressure slowly drifts upward on "ETCH-01" after
-       lot 350 -> mild yield degradation (~5-10 pp).
+       lot 300 -> moderate yield degradation (~10-16 pp, MEDIUM risk).
+
+Target yield-risk distribution: HIGH ~12%, MEDIUM ~18%, LOW ~70%.
 
 Usage:
     python src/data/generate_data.py
@@ -168,20 +170,47 @@ def make_lots() -> list[dict]:
         yield_pct = gauss(BASELINE_YIELD, YIELD_SIGMA)
 
         # ── P1: ETCH-03 temperature degradation after lot 200 ───────────────
+        # Increased drop (22-30 pp) so lots reliably land in HIGH risk zone.
         p1_active = (tool == "ETCH-03" and i > 200)
 
         # ── P2: DEP-02 + R-NIT-07 RF interaction ────────────────────────────
+        # Increased drop (18-26 pp) for consistent HIGH risk signal.
         p2_active = (tool == "DEP-02" and recipe == "R-NIT-07")
 
-        # ── P4: ETCH-01 pressure drift after lot 350 ────────────────────────
-        p4_active = (tool == "ETCH-01" and i > 350)
+        # ── P3: Particle contamination burst (independent of tool/recipe) ────
+        # ~18% of all lots encounter a particle event raising defect density.
+        # Yield penalty is proportional to severity.
+        p3_active = (random.random() < 0.18)
+
+        # ── P4: ETCH-01 pressure drift after lot 300 ────────────────────────
+        # Extended onset and stronger penalty for MEDIUM risk.
+        p4_active = (tool == "ETCH-01" and i > 300)
+
+        # ── P5: CMP polish-rate excursion (~15% of CMP lots) ────────────────
+        # Slurry flow / platen speed instability; mild yield drop → MEDIUM.
+        p5_active = (step == "cmp" and random.random() < 0.15)
 
         if p1_active:
-            yield_pct -= gauss(20.0, 3.0)
+            yield_pct -= gauss(28.5, 1.8)   # ~28.5 pp → ~64.5% mean (HIGH)
         if p2_active:
-            yield_pct -= gauss(15.0, 3.0)
+            yield_pct -= gauss(22.0, 2.5)   # ~22 pp → ~70% mean (HIGH)
+        if p3_active and not (p1_active or p2_active):
+            # Particle burst: two-tier severity.
+            # ~70% of events are moderate (MEDIUM zone: 75–82%).
+            # ~30% are severe (HIGH zone: <75%).
+            if random.random() < 0.70:
+                # Moderate burst: ~14 pp drop; 92-14=78 → firmly in MEDIUM band
+                yield_pct -= gauss(14.0, 0.8)
+            else:
+                # Severe burst: ~24 pp drop → HIGH band
+                yield_pct -= gauss(24.0, 2.0)
         if p4_active:
-            yield_pct -= gauss(7.0, 2.0)
+            drift_lots = i - 300
+            # Flat 10 pp floor + ramp; nearly all ETCH-01 post-300 fall in MEDIUM
+            yield_pct -= gauss(10.0 + drift_lots * 0.030, 1.0)
+        if p5_active and not (p1_active or p2_active or p3_active):
+            # CMP excursion: 11-13 pp drop → MEDIUM band (92-12=80)
+            yield_pct -= gauss(12.0, 0.6)
 
         yield_pct = round(clamp(yield_pct, 30.0, 99.9), 2)
         low_yield_flag = yield_pct < LOW_YIELD_THRESHOLD
@@ -200,7 +229,9 @@ def make_lots() -> list[dict]:
             # store pattern flags for use by sensor/defect generators
             "_p1": p1_active,
             "_p2": p2_active,
+            "_p3": p3_active,
             "_p4": p4_active,
+            "_p5": p5_active,
             "_i":  i,
         })
 
@@ -233,16 +264,31 @@ def make_sensors(lots: list[dict]) -> list[dict]:
 
                 # ── P1: ETCH-03 runs too hot ─────────────────────────────────
                 if lot["_p1"] and param == "etch_temp_c":
-                    value = gauss(188.0, 2.5)   # 12 C above nominal
+                    value = gauss(193.0, 2.5)   # ~18 C above nominal (was 188)
 
                 # ── P2: DEP-02 + R-NIT-07 RF spike ──────────────────────────
                 if lot["_p2"] and param == "rf_power_w":
-                    value = gauss(425.0, 8.0)   # 45 W above nominal
+                    value = gauss(435.0, 8.0)   # ~55 W above nominal (was 425)
+
+                # ── P3: Particle burst — elevated gas_flow / pressure anomaly ─
+                # On etch/deposition steps, particle events correlate with
+                # abnormal gas flow or precursor flow readings.
+                if lot["_p3"] and not (lot["_p1"] or lot["_p2"]):
+                    if param in ("gas_flow_sccm", "precursor_flow_sccm"):
+                        value = gauss(mu * 1.18, sigma * 1.5)   # 18% over-flow
+                    elif param in ("etch_pressure_mtorr", "dep_pressure_mtorr"):
+                        value = gauss(mu * 1.12, sigma * 1.5)   # 12% pressure rise
 
                 # ── P4: ETCH-01 pressure drift ────────────────────────────────
                 if lot["_p4"] and param == "etch_pressure_mtorr":
-                    drift = (lot["_i"] - 350) * 0.012   # ~1.8 mTorr by lot 500
+                    drift = (lot["_i"] - 300) * 0.016   # ~3.2 mTorr by lot 500
                     value = gauss(mu + drift, sigma)
+
+                # ── P5: CMP polish-rate excursion ─────────────────────────────
+                if lot["_p5"] and param == "polish_pressure_psi":
+                    value = gauss(mu * 1.10, sigma * 1.5)  # 10% over-pressure
+                if lot["_p5"] and param == "removal_rate_ang_min":
+                    value = gauss(mu * 0.82, sigma * 1.5)  # 18% under-rate
 
                 value = round(value, 4)
                 lo, hi = ALERT_LIMITS.get(param, (-1e9, 1e9))
@@ -278,11 +324,16 @@ def make_defects(lots: list[dict]) -> list[dict]:
     for lot in lots:
         low = lot["low_yield_flag"]
         p1_or_p2 = lot["_p1"] or lot["_p2"]
+        p3 = lot["_p3"] and not p1_or_p2              # standalone particle burst
+        p5 = lot["_p5"] and not (p1_or_p2 or p3)      # CMP excursion
 
-        # Base defects per lot; normal lots 4-8, low-yield lots get more
-        # Tuned so total approaches ~3000 across 500 lots
+        # Base defects per lot; tuned so total approaches ~3000 across 500 lots
         if p1_or_p2:
-            n_defects = random.randint(12, 22)
+            n_defects = random.randint(14, 24)
+        elif p3:
+            n_defects = random.randint(12, 20)
+        elif p5:
+            n_defects = random.randint(6, 12)   # CMP excursion: moderate defect count
         elif low:
             n_defects = random.randint(8, 14)
         else:
@@ -293,14 +344,22 @@ def make_defects(lots: list[dict]) -> list[dict]:
         for _ in range(n_defects):
             wafer_id = f"{lot['lot_id']}-W{random.randint(1, WAFERS_PER_LOT):02d}"
 
-            # ── P3: particle contamination on low-yield lots ─────────────────
+            # ── P1/P2: equipment-driven contamination ────────────────────────
             if p1_or_p2:
                 defect_type = random.choices(
                     DEFECT_TYPES,
                     weights=[50, 10, 15, 10, 10, 5],
                     k=1,
                 )[0]
-                density = round(random.uniform(0.18, 0.45), 4)
+                density = round(random.uniform(0.22, 0.50), 4)
+            # ── P3: standalone particle burst ────────────────────────────────
+            elif p3:
+                defect_type = random.choices(
+                    DEFECT_TYPES,
+                    weights=[65, 8, 10, 7, 7, 3],  # mostly particles
+                    k=1,
+                )[0]
+                density = round(random.uniform(0.20, 0.45), 4)
             elif low:
                 defect_type = random.choices(
                     DEFECT_TYPES,
@@ -308,6 +367,14 @@ def make_defects(lots: list[dict]) -> list[dict]:
                     k=1,
                 )[0]
                 density = round(random.uniform(0.10, 0.22), 4)
+            # ── P5: CMP uniformity defects (scratches, removal-rate non-uniformity)
+            elif p5:
+                defect_type = random.choices(
+                    DEFECT_TYPES,
+                    weights=[10, 50, 10, 10, 15, 5],  # mostly scratches
+                    k=1,
+                )[0]
+                density = round(random.uniform(0.08, 0.18), 4)
             else:
                 defect_type = random.choices(
                     DEFECT_TYPES,
@@ -369,7 +436,7 @@ def main() -> None:
     alert_count = sum(1 for s in sensors if s["alert_flag"])
 
     # Write fixtures (strip internal _* keys from lots)
-    internal_keys = ["_p1", "_p2", "_p4", "_i"]
+    internal_keys = ["_p1", "_p2", "_p3", "_p4", "_p5", "_i"]
     n_lots    = write_csv(os.path.join(OUT_DIR, "wafer_lots.csv"),                  lots,    internal_keys)
     n_sensors = write_csv(os.path.join(OUT_DIR, "equipment_sensor_readings.csv"),   sensors)
     n_defects = write_csv(os.path.join(OUT_DIR, "defect_reports.csv"),              defects)
@@ -378,11 +445,14 @@ def main() -> None:
     print(f"   wafer_lots.csv                : {n_lots:>5} rows  ({low_yield_count} low-yield lots)")
     print(f"   equipment_sensor_readings.csv : {n_sensors:>5} rows  ({alert_count} alert readings)")
     print(f"   defect_reports.csv            : {n_defects:>5} rows")
+    p3_count = sum(1 for l in lots if l["_p3"])
+    p5_count = sum(1 for l in lots if l["_p5"])
     print("\nInjected patterns:")
-    print("  P1 - ETCH-03 etch_temp_c spike    (lots 201-500, tool=ETCH-03)")
-    print("  P2 - DEP-02 + R-NIT-07 RF spike   (tool=DEP-02, recipe=R-NIT-07)")
-    print("  P3 - High particle density on low-yield lots")
-    print("  P4 - ETCH-01 etch_pressure drift   (lots 351-500, tool=ETCH-01)")
+    print(f"  P1 - ETCH-03 etch_temp_c spike    (lots 201-500, tool=ETCH-03, ~26 pp drop)")
+    print(f"  P2 - DEP-02 + R-NIT-07 RF spike   (tool=DEP-02, recipe=R-NIT-07, ~22 pp drop)")
+    print(f"  P3 - Particle contamination burst  ({p3_count} lots, ~22%, 14-24 pp drop)")
+    print(f"  P4 - ETCH-01 etch_pressure drift   (lots 301-500, tool=ETCH-01, ramps to ~15 pp)")
+    print(f"  P5 - CMP polish-rate excursion     ({p5_count} lots, ~15% of CMP, ~12 pp drop)")
 
 
 if __name__ == "__main__":
