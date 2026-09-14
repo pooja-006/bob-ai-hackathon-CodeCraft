@@ -6,10 +6,12 @@
 
 Before you begin, ensure you have the following installed:
 
-- [ ] [e.g., Python 3.11+]
-- [ ] [e.g., Node.js 18+]
-- [ ] [e.g., Docker Desktop]
-- [ ] [e.g., An IBM Cloud account with watsonx.ai access]
+- [ ] Python 3.11+
+- [ ] Node.js 18+
+- [ ] npm
+- [ ] Git
+- [ ] IBM Cloud account with watsonx.ai access (optional; fallback mode works without it)
+
 
 ## Environment Variables
 
@@ -21,44 +23,47 @@ cp .env.example .env
 
 | Variable | Description | Required |
 |---|---|---|
-| `WATSONX_API_KEY` | Your IBM watsonx.ai API key | Yes |
-| `WATSONX_PROJECT_ID` | Your watsonx.ai project ID | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `SLACK_WEBHOOK_URL` | Slack webhook for alerts | No |
+| `WATSONX_API_KEY` | IBM watsonx.ai API key | Yes |
+| `WATSONX_PROJECT_ID` | watsonx.ai project ID | Yes |
+| `WATSONX_URL` | watsonx.ai service URL | No |
+| `SLACK_WEBHOOK_URL` | Granite model ID | No |
 
 ## Installation
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/[your-org]/[your-repo].git
-cd [your-repo]
+git clone https://github.com/pooja-006/bob-ai-hackathon-CodeCraft.git
+cd bob-ai-hackathon-CodeCraft
 
 # 2. Install backend dependencies
-[your command — e.g.: pip install -r requirements.txt]
+cd src/backend
+pip install -r requirements.txt
 
 # 3. Install frontend dependencies (if applicable)
-[your command — e.g.: cd frontend && npm install]
+cd ../frontend
+npm install
 
-# 4. Set up the database (if applicable)
-[your command — e.g.: python manage.py migrate]
+
 ```
 
 ## Running the Application
 
 ```bash
 # Start the backend
-[your command — e.g.: uvicorn app.main:app --reload]
+cd src/backend
+python -m uvicorn main:app --reload --port 8000
 
 # Start the frontend (in a separate terminal, if applicable)
-[your command — e.g.: cd frontend && npm run dev]
+cd src/frontend
+npm run dev
 ```
 
-The application will be available at: `http://localhost:[PORT]`
+The application will be available at: `http://localhost:5173`
 
 ## Running Tests
 
 ```bash
-[your test command — e.g.: pytest tests/ -v]
+[ pytest q]
 ```
 
 ## Quick Demo (Optional)
@@ -74,6 +79,6 @@ If you have a demo script or sample data to showcase the project quickly:
 
 | Issue | Solution |
 |---|---|
-| [e.g., `ModuleNotFoundError`] | [e.g., Run `pip install -r requirements.txt` again] |
-| [e.g., Database connection refused] | [e.g., Ensure PostgreSQL is running: `docker compose up db`] |
-| [e.g., watsonx.ai 401 error] | [e.g., Check `WATSONX_API_KEY` in your `.env` file] |
+| ModuleNotFoundError | Run pip install -r requirements.txt again and ensure you are using Python 3.11+. |
+| npm install fails | Delete node_modules and package-lock.json, then run npm install again. |
+| watsonx.ai 401 error | Check WATSONX_API_KEY, WATSONX_PROJECT_ID, and WATSONX_URL in your .env file. |
