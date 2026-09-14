@@ -2,20 +2,20 @@
 
 ## Background
 
-[Describe the broader context. What domain or industry does this problem belong to? What situation creates the problem?]
+[Semiconductor manufacturing depends on stable process conditions and high wafer yield. Small changes in equipment sensors, process parameters, or defect patterns can reduce yield and require engineers to investigate multiple data sources.]
 
 ## The Problem
 
-[State the problem clearly and specifically. Avoid vague statements like "things are slow" — instead say "Operations teams spend an average of 45 minutes per incident diagnosing pipeline failures because logs are scattered across 6 different tools."]
+[Engineers lack a unified way to quickly identify why wafer yield is decreasing. Detecting process drift, connecting sensor anomalies with defects, and finding the most likely root cause often requires manual analysis of large manufacturing datasets.]
 
 ## Who is Affected
 
-[Describe the specific user or persona experiencing this problem. Be concrete — not "developers" but "backend engineers managing CI/CD pipelines in enterprises with 50+ microservices."]
+[Semiconductor process and yield engineers responsible for monitoring wafer lots, investigating yield loss, identifying equipment-related issues, and recommending corrective actions.]
 
 ## Why It Matters
 
-[What is the cost of this problem? Lost time? Revenue? Safety risk? Frustration? Quantify if possible.]
+[Yield loss directly increases manufacturing cost and can delay production. Slow root-cause investigation also increases the time required to identify faulty tools, process drift, or defect sources. Faster diagnosis can help engineers take corrective action earlier and reduce avoidable yield loss.]
 
 ## Why Existing Solutions Fall Short
 
-[Briefly explain what people currently do and why it doesn't fully solve the problem. This sets up why your solution is needed.]
+[Traditional dashboards mainly display sensor values, defects, and yield metrics separately. Engineers still need to manually correlate these signals and determine the likely root cause. Existing analytics may detect anomalies but often lack ranked root causes, risk prediction, evidence, and actionable engineering recommendations in one place.]
