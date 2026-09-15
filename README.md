@@ -17,9 +17,11 @@
 
 ## 🎯 Problem Statement
 
-Semiconductor manufacturing generates large volumes of process, equipment, sensor, and defect data, making it difficult for engineers to quickly identify the causes of wafer-yield degradation. Process engineers need a faster way to connect abnormal sensor conditions and defect patterns with affected lots, equipment, and potential corrective actions.
-
-This project addresses that challenge by providing an integrated analytics dashboard that detects process anomalies, identifies likely root causes, predicts yield risk, and presents evidence-backed engineering insights.
+At 3nm/5nm chip nodes, a 1% yield drop costs tens of millions per month. Root causes
+hide across thousands of equipment sensors, process parameters, and defect images.
+Engineers spend weeks finding the cause manually — every day of delay is lost
+revenue. Process engineers also need to predict which upcoming batches are at risk
+before they run, not after they fail.
 
 ---
 
